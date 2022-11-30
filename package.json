@@ -3,10 +3,10 @@
   "description": "go23wallet provider",
   "license": "MIT",
   "author": "wake.z <18621904917@163.com>",
-  "homepage": "https://github.com/trufflesuite/truffle/tree/master/packages/hdwallet-provider#readme",
+  "homepage": "https://github.com/wake-z/test-go23-wallet#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/trufflesuite/truffle.git"
+    "url": "https://github.com/wake-z/test-go23-wallet.git"
   },
   "bugs": {
     "url": "https://github.com/trufflesuite/truffle/issues"
