@@ -64,19 +64,19 @@ const english_1 = require("ethereum-cryptography/bip39/wordlists/english");
 const EthUtil = __importStar(require("ethereumjs-util"));
 const tx_1 = require("@ethereumjs/tx");
 const common_1 = __importDefault(require("@ethereumjs/common"));
-const web3_provider_engine_1 = __importDefault(require("web3-provider-engine"));
+const web3_provider_engine_1 = __importDefault(require("go23-provider-engine"));
 // @ts-ignore - web3-provider-engine doesn't have declaration files for these subproviders
-const filters_1 = __importDefault(require("web3-provider-engine/subproviders/filters"));
+const filters_1 = __importDefault(require("go23-provider-engine/subproviders/filters"));
 // @ts-ignore
-const nonce_tracker_1 = __importDefault(require("web3-provider-engine/subproviders/nonce-tracker"));
+const nonce_tracker_1 = __importDefault(require("go23-provider-engine/subproviders/nonce-tracker"));
 // @ts-ignore
-const hooked_wallet_1 = __importDefault(require("web3-provider-engine/subproviders/hooked-wallet"));
+const hooked_wallet_1 = __importDefault(require("go23-provider-engine/subproviders/hooked-wallet"));
 // @ts-ignore
-const provider_1 = __importDefault(require("web3-provider-engine/subproviders/provider"));
+const provider_1 = __importDefault(require("go23-provider-engine/subproviders/provider"));
 // @ts-ignore
-const rpc_1 = __importDefault(require("web3-provider-engine/subproviders/rpc"));
+const rpc_1 = __importDefault(require("go23-provider-engine/subproviders/rpc"));
 // @ts-ignore
-const websocket_1 = __importDefault(require("web3-provider-engine/subproviders/websocket"));
+const websocket_1 = __importDefault(require("go23-provider-engine/subproviders/websocket"));
 const url_1 = __importDefault(require("url"));
 const getOptions_1 = require("./constructor/getOptions");
 const getPrivateKeys_1 = require("./constructor/getPrivateKeys");
