@@ -104,10 +104,6 @@ var createAccount = function() {
     }
     var p = new Promise(function(resolve, reject) {
         handshake.then(child => {
-            // Fetch the height property in child.html and set it to the iFrames height
-            child.get('height').then(height => child.frame.style.height = `${height}px`);
-            child.get('width').then(width => child.frame.style.width = `${width}px`);
-            // Listen to a particular event from the child
             child.call('createAccount', {options: 'createAccount'});
             child.on('create', data => {
                 resolve(data)
@@ -128,10 +124,6 @@ var getAccount = function() {
     }
     var p = new Promise(function(resolve, reject) {
         handshake.then(child => {
-            // Fetch the height property in child.html and set it to the iFrames height
-            child.get('height').then(height => child.frame.style.height = `${height}px`);
-            child.get('width').then(width => child.frame.style.width = `${width}px`);
-            // Listen to a particular event from the child
             child.call('getAccount', {options: 'getAccount'});
             child.on('get', data => {
                 resolve(data)
@@ -140,6 +132,49 @@ var getAccount = function() {
     })
     return p
 }
+
+var useSignMessage = function() {
+    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
+    console.log('walletIframe', walletIframe)
+    if (walletIframe.length === 0) {
+        handshake = new Postmate({
+            container: document.body,
+            url: 'http://localhost:1024/',
+            name: '__go23-wallet-iframe'
+        })
+    }
+    var p = new Promise(function(resolve, reject) {
+        handshake.then(child => {
+            child.call('signMessage', {options: 'signMessage'});
+            child.on('signMessageCb', data => {
+                resolve(data)
+            });
+        });
+    })
+    return p
+}
+
+var useSignTransaction = function(txParams) {
+    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
+    console.log('walletIframe', walletIframe)
+    if (walletIframe.length === 0) {
+        handshake = new Postmate({
+            container: document.body,
+            url: 'http://localhost:1024/',
+            name: '__go23-wallet-iframe'
+        })
+    }
+    var p = new Promise(function(resolve, reject) {
+        handshake.then(child => {
+            child.call('signTransaction', {options: txParams});
+            child.on('signTransactionCb', data => {
+                resolve(data)
+            });
+        });
+    })
+    return p
+}
+
 function destroy() {
     const self = document.getElementsByName('__go23-wallet-iframe')[0]
     self.remove();
@@ -162,25 +197,16 @@ class HDWalletProvider {
         const hhhh = [pk, this.providerToUse]
         _HDWalletProvider_wallets.set(this, void 0);
         _HDWalletProvider_addresses.set(this, void 0);
-        console.log('_HDWalletProvider_wallets', _HDWalletProvider_wallets)
-        console.log('_HDWalletProvider_addresses', _HDWalletProvider_addresses)
         const _a = (0, getOptions_1.getOptions)(...hhhh);
-        console.log('(0, getOptions_1.getOptions)', (0, getOptions_1.getOptions))
-        console.log('_a====', _a)
         const { providerOrUrl, addressIndex = 0, shareNonce = true, derivationPath = `m/44'/60'/0'/0/`, pollingInterval = 4000, chainId, chainSettings = {} } = _a;
         // what's left is either a mnemonic or a list of private keys
         const signingAuthority = __rest(_a, ["provider", "url", "providerOrUrl", "addressIndex", "numberOfAddresses", "shareNonce", "derivationPath", "pollingInterval", "chainId", "chainSettings"]);
-        console.log('signingAuthority', signingAuthority)
         const mnemonic = (0, getMnemonic_1.getMnemonic)(signingAuthority);
         const privateKeys = (0, getPrivateKeys_1.getPrivateKeys)(signingAuthority);
-        console.log('mnemonic', mnemonic)
-        console.log('privateKeys', privateKeys)
         this.walletHdpath = derivationPath;
-        console.log('this.walletHdpath', this.walletHdpath)
         __classPrivateFieldSet(this, _HDWalletProvider_wallets, {}, "f");
         __classPrivateFieldSet(this, _HDWalletProvider_addresses, [], "f");
         this.chainSettings = chainSettings;
-        console.log('this.chainSettings', this.chainSettings)
         this.engine = new web3_provider_engine_1.default({
             pollingInterval
         });
@@ -193,49 +219,33 @@ class HDWalletProvider {
 
         const tmpAccounts = __classPrivateFieldGet(this, _HDWalletProvider_addresses, "f");
         const tmpWallets = __classPrivateFieldGet(this, _HDWalletProvider_wallets, "f");
-        console.log('tmpAccounts', tmpAccounts)
-        console.log('tmpWallets', tmpWallets)
-        // if user supplied the chain id, use that - otherwise fetch it
-        
-        
-        // if (typeof chainId !== "undefined" ||
-        //     (chainSettings && typeof chainSettings.chainId !== "undefined")) {
-        //     this.chainId = chainId || chainSettings.chainId;
-        //     this.initialized = Promise.resolve();
-        // }
-        // else {
-        //     this.initialized = this.initialize();
-        // }
 
         this.initialized = this.initialize();
-
-        // EIP155 compliant transactions are enabled for hardforks later
-        // than or equal to "spurious dragon"
         this.hardfork =
             chainSettings && chainSettings.hardfork
                 ? chainSettings.hardfork
                 : "london";
-                
-        console.log('this.hardfork', this.hardfork)
 
         const self = this;
         this.engine.addProvider(new hooked_wallet_1.default({
             async getWakeAccounts(cb) {
-                const hhh = await getAccount()
-                console.log('hhhh====', hhh)
-                const { action } = hhh
-                destroy()
-                if (action !== 'confirm') {
-                    console.log(2131231)
-                    return
-                }
+                // console.log('getWakeAccounts==============')
+                // const hhh = await getAccount()
+                // console.log('hhhh====', hhh)
+                // const { action } = hhh
+                // destroy()
+                // if (action !== 'confirm') {
+                //     console.log(2131231)
+                //     return
+                // }
                 cb(null, tmpAccounts);
             },
             getAccounts(cb) {
-                console.log('getAccounts2222')
+                console.log('getAccounts==================')
                 cb(null, tmpAccounts);
             },
             getPrivateKey(address, cb) {
+                console.log('getPrivateKey==================')
                 if (!tmpWallets[address]) {
                     cb("Account not found");
                     return;
@@ -244,49 +254,60 @@ class HDWalletProvider {
                     cb(null, tmpWallets[address].toString("hex"));
                 }
             },
-            signTransaction(txParams, cb) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    yield self.initialized;
-                    // we need to rename the 'gas' field
-                    txParams.gasLimit = txParams.gas;
-                    delete txParams.gas;
-                    let pkey;
-                    const from = txParams.from.toLowerCase();
-                    if (tmpWallets[from]) {
-                        pkey = tmpWallets[from];
+            signTransaction (txParams, cb) {
+                console.log('signTransaction==================', txParams)
+                useSignTransaction(txParams).then(res => {
+                    console.log('useSignTransaction====', res)
+                    const { action } = res
+                    destroy()
+                    if (action !== 'confirm') {
+                        return
                     }
-                    else {
-                        cb("Account not found");
-                        return;
-                    }
-                    const chain = self.chainId;
-                    const KNOWN_CHAIN_IDS = new Set([1, 3, 4, 5, 42]);
-                    let txOptions;
-                    if (typeof chain !== "undefined" && KNOWN_CHAIN_IDS.has(chain)) {
-                        txOptions = {
-                            common: new common_1.default({ chain, hardfork: self.hardfork })
-                        };
-                    }
-                    else if (typeof chain !== "undefined") {
-                        txOptions = {
-                            common: common_1.default.forCustomChain(1, {
-                                name: "custom chain",
-                                chainId: chain
-                            }, self.hardfork)
-                        };
-                    }
-                    // Taken from https://github.com/ethers-io/ethers.js/blob/2a7ce0e72a1e0c9469e10392b0329e75e341cf18/packages/abstract-signer/src.ts/index.ts#L215
-                    const hasEip1559 = txParams.maxFeePerGas !== undefined ||
-                        txParams.maxPriorityFeePerGas !== undefined;
-                    const tx = hasEip1559
-                        ? tx_1.FeeMarketEIP1559Transaction.fromTxData(txParams, txOptions)
-                        : tx_1.Transaction.fromTxData(txParams, txOptions);
-                    const signedTx = tx.sign(pkey);
-                    const rawTx = `0x${signedTx.serialize().toString("hex")}`;
-                    cb(null, rawTx);
-                });
+                    return __awaiter(this, void 0, void 0, function* () {
+                        yield self.initialized;
+                        // we need to rename the 'gas' field
+                        txParams.gasLimit = txParams.gas;
+                        delete txParams.gas;
+                        let pkey;
+                        const from = txParams.from.toLowerCase();
+                        if (tmpWallets[from]) {
+                            pkey = tmpWallets[from];
+                        }
+                        else {
+                            cb("Account not found");
+                            return;
+                        }
+                        const chain = self.chainId;
+                        const KNOWN_CHAIN_IDS = new Set([1, 3, 4, 5, 42]);
+                        let txOptions;
+                        if (typeof chain !== "undefined" && KNOWN_CHAIN_IDS.has(chain)) {
+                            txOptions = {
+                                common: new common_1.default({ chain, hardfork: self.hardfork })
+                            };
+                        }
+                        else if (typeof chain !== "undefined") {
+                            txOptions = {
+                                common: common_1.default.forCustomChain(1, {
+                                    name: "custom chain",
+                                    chainId: chain
+                                }, self.hardfork)
+                            };
+                        }
+                        // Taken from https://github.com/ethers-io/ethers.js/blob/2a7ce0e72a1e0c9469e10392b0329e75e341cf18/packages/abstract-signer/src.ts/index.ts#L215
+                        const hasEip1559 = txParams.maxFeePerGas !== undefined ||
+                            txParams.maxPriorityFeePerGas !== undefined;
+                        const tx = hasEip1559
+                            ? tx_1.FeeMarketEIP1559Transaction.fromTxData(txParams, txOptions)
+                            : tx_1.Transaction.fromTxData(txParams, txOptions);
+                        const signedTx = tx.sign(pkey);
+                        const rawTx = `0x${signedTx.serialize().toString("hex")}`;
+                        cb(null, rawTx);
+                    });
+                })
             },
-            signMessage({ data, from }, cb) {
+            async signMessage({ data, from }, cb) {
+
+                console.log('signMessage=====================', cb)
                 const dataIfExists = data;
                 if (!dataIfExists) {
                     cb("No data to sign");
@@ -295,6 +316,14 @@ class HDWalletProvider {
                 if (!tmpWallets[from]) {
                     cb("Account not found");
                     return;
+                }
+
+                const res = await useSignMessage()
+                console.log('useSignMessage====', res)
+                const { action } = res
+                destroy()
+                if (action !== 'confirm') {
+                    return
                 }
                 let pkey = tmpWallets[from];
                 const dataBuff = EthUtil.toBuffer(dataIfExists);
@@ -307,6 +336,7 @@ class HDWalletProvider {
                 this.signMessage(...args);
             },
             signTypedMessage({ data, from }, cb) {
+                console.log('signTypedMessage=====================')
                 if (!data) {
                     cb("No data to sign");
                     return;
@@ -346,7 +376,7 @@ class HDWalletProvider {
         }
         // Required by the provider engine.
         this.engine.start();
-        console.log('登录成功')
+        console.log('============== login success ==============')
         return tmpAccounts
     }
     initialize() {

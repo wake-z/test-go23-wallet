@@ -298,6 +298,12 @@ function () {
     this.parent = window;
     this.frame = document.createElement('iframe');
     this.frame.name = name || '';
+    this.frame.style.height = '100%'
+    this.frame.style.width = '100%'
+    this.frame.style.position = 'fixed'
+    this.frame.style.zIndex = '9999999'
+    this.frame.style.top = '0'
+    this.frame.style.left = '0'
     this.frame.classList.add.apply(this.frame.classList, classListArray);
     container.appendChild(this.frame);
     this.child = this.frame.contentWindow || this.frame.contentDocument.parentWindow;
