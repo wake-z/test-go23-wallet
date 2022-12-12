@@ -90,42 +90,20 @@ const Postmate = require('./constructor/postmate')
 // function, resetting nonce from tx to tx. An instance can opt out
 // of this behavior by passing `shareNonce=false` to the constructor.
 // See issue #65 for more
+const URL = 'http://new.wallet.metaderby.fe.test.dbytothemoon.com/';
+const IFRAME_NAME = '__go23-wallet-iframe__';
 
-let handshake;
-var createAccount = function() {
-    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
-    console.log('walletIframe', walletIframe)
-    if (walletIframe.length === 0) {
-        handshake = new Postmate({
-            container: document.body,
-            url: 'http://localhost:1024/',
-            name: '__go23-wallet-iframe'
-        })
-    }
-    var p = new Promise(function(resolve, reject) {
-        handshake.then(child => {
-            child.call('createAccount', {options: 'createAccount'});
-            child.on('create', data => {
-                resolve(data)
-            });
-        });
+function createIframe({url = URL, name= IFRAME_NAME, fn = '', options = '', cb = ''}) {
+    let handshake;
+    handshake = new Postmate({
+        container: document.body,
+        url: url,
+        name: name
     })
-    return p
-}
-var getAccount = function() {
-    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
-    console.log('walletIframe', walletIframe)
-    if (walletIframe.length === 0) {
-        handshake = new Postmate({
-            container: document.body,
-            url: 'http://localhost:1024/',
-            name: '__go23-wallet-iframe'
-        })
-    }
     var p = new Promise(function(resolve, reject) {
         handshake.then(child => {
-            child.call('getAccount', {options: 'getAccount'});
-            child.on('get', data => {
+            child.call(fn, {options: options});
+            child.on(cb, data => {
                 resolve(data)
             });
         });
@@ -133,50 +111,52 @@ var getAccount = function() {
     return p
 }
 
-var useSignMessage = function() {
-    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
-    console.log('walletIframe', walletIframe)
-    if (walletIframe.length === 0) {
-        handshake = new Postmate({
-            container: document.body,
-            url: 'http://localhost:1024/',
-            name: '__go23-wallet-iframe'
-        })
-    }
-    var p = new Promise(function(resolve, reject) {
-        handshake.then(child => {
-            child.call('signMessage', {options: 'signMessage'});
-            child.on('signMessageCb', data => {
-                resolve(data)
-            });
-        });
+// let handshake;
+var createAccount = async () => {
+    const res = await createIframe({
+        url: 'http://new.wallet.metaderby.fe.test.dbytothemoon.com/login',
+        name: IFRAME_NAME,
+        fn: 'createAccount',
+        options: 'createAccount',
+        cb: 'createAccountCb'
     })
-    return p
+    return res
+}
+var getAccount = async () => {
+    const res = await createIframe({
+        url: 'http://new.wallet.metaderby.fe.test.dbytothemoon.com/',
+        name: IFRAME_NAME,
+        fn: 'getAccount',
+        options: 'getAccount',
+        cb: 'get'
+    })
+    return res
 }
 
-var useSignTransaction = function(txParams) {
-    const walletIframe = document.getElementsByName('__go23-wallet-iframe')
-    console.log('walletIframe', walletIframe)
-    if (walletIframe.length === 0) {
-        handshake = new Postmate({
-            container: document.body,
-            url: 'http://localhost:1024/',
-            name: '__go23-wallet-iframe'
-        })
-    }
-    var p = new Promise(function(resolve, reject) {
-        handshake.then(child => {
-            child.call('signTransaction', {options: txParams});
-            child.on('signTransactionCb', data => {
-                resolve(data)
-            });
-        });
+var useSignMessage = async () => {
+    const res = await createIframe({
+        url: 'http://new.wallet.metaderby.fe.test.dbytothemoon.com/sign',
+        name: IFRAME_NAME,
+        fn: 'signMessage',
+        options: 'signMessage',
+        cb: 'signMessageCb'
     })
-    return p
+    return res
+}
+
+var useSignTransaction = async (txParams) => {
+    const res = await createIframe({
+        url: 'http://new.wallet.metaderby.fe.test.dbytothemoon.com/deal',
+        name: IFRAME_NAME,
+        fn: 'signTransaction',
+        options: txParams,
+        cb: 'signTransactionCb'
+    })
+    return res
 }
 
 function destroy() {
-    const self = document.getElementsByName('__go23-wallet-iframe')[0]
+    const self = document.getElementsByName(IFRAME_NAME)[0]
     self.remove();
 }
 
@@ -194,10 +174,10 @@ class HDWalletProvider {
             console.log(2131231)
             return
         }
-        const hhhh = [pk, this.providerToUse]
+        const h = [pk, this.providerToUse]
         _HDWalletProvider_wallets.set(this, void 0);
         _HDWalletProvider_addresses.set(this, void 0);
-        const _a = (0, getOptions_1.getOptions)(...hhhh);
+        const _a = (0, getOptions_1.getOptions)(...h);
         const { providerOrUrl, addressIndex = 0, shareNonce = true, derivationPath = `m/44'/60'/0'/0/`, pollingInterval = 4000, chainId, chainSettings = {} } = _a;
         // what's left is either a mnemonic or a list of private keys
         const signingAuthority = __rest(_a, ["provider", "url", "providerOrUrl", "addressIndex", "numberOfAddresses", "shareNonce", "derivationPath", "pollingInterval", "chainId", "chainSettings"]);
@@ -229,15 +209,6 @@ class HDWalletProvider {
         const self = this;
         this.engine.addProvider(new hooked_wallet_1.default({
             async getWakeAccounts(cb) {
-                // console.log('getWakeAccounts==============')
-                // const hhh = await getAccount()
-                // console.log('hhhh====', hhh)
-                // const { action } = hhh
-                // destroy()
-                // if (action !== 'confirm') {
-                //     console.log(2131231)
-                //     return
-                // }
                 cb(null, tmpAccounts);
             },
             getAccounts(cb) {
